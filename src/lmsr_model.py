@@ -90,7 +90,7 @@ class LMSRMarket:
 
     def sell_yes(self, amt: float) -> float:
         revenue = self.cost_to_sell_yes(amt)
-        self.q_yes -= amt
+        self.q_yes = max(0.0, self.q_yes - amt)
         return revenue
 
     def buy_no(self, amt: float) -> float:
