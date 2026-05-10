@@ -146,7 +146,7 @@ def simulate_single_attack(
     )
 
 
-#  Full Simulation
+#  One Simulation Run with b = 500.0, front_run_multiplier = 1.0, min_victim_size_usd = 50.0
 def run_simulation(
     csv_path: str,
     b: float = 500.0,
@@ -211,7 +211,7 @@ def print_summary(results_df: pd.DataFrame, market_name: str):
     print(f"  Avg expected value lost:   ${results_df['expected_value_lost'].mean():.4f}")
     print(f"  Avg price impact:          {(results_df['price_after_frontrun'] - results_df['price_before']).mean():.4f}")
 
-
+# Plotting results to see impact on 1 run
 def plot_results(results_df: pd.DataFrame, market_name: str, output_dir: Path):
     fig, axes = plt.subplots(2, 2, figsize=(13, 9))
     fig.suptitle(f"Sandwich Attack Simulation — {market_name}", fontsize=14)
@@ -262,6 +262,155 @@ def plot_results(results_df: pd.DataFrame, market_name: str, output_dir: Path):
     plt.close()
     print(f"  Saved: {out_path}")
 
+# Experiments for Comparative Analysis
+def run_experiments(markets):
+    """
+    Run sandwich attack simulation over all qualifying trades in a CSV wth varying b, front_run_multiplier, and min_victim_size_usd values.
+    Args:
+        markets: list of dicts containing market name and CSV path for market data
+    Returns:
+        combined: all results across every experimental variable combination
+        trades_df: aggregated experiment statistics grouped by experimental variable combinations, including metric for attacker profitability, victim harm, and price impact metrics
+    """
+
+    B_VALUES = [100.0, 250.0, 500.0, 1000.0]
+    FRONT_RUN_MULTS = [0.25, 0.5, 1.0, 2.0, 5.0]
+    MIN_VICTIM_SIZES_USD = [25.0, 50.0, 100.0, 200.0]
+
+    output_dir = Path("simulation_output")
+    output_dir.mkdir(exist_ok=True)
+
+    all_results = []
+
+    for m in markets:
+        market_name = m['name']
+        csv_path = m['csv']
+
+        for b in B_VALUES:
+            for front_run_mult in FRONT_RUN_MULTS:
+                for min_vic_size in MIN_VICTIM_SIZES_USD:
+                    print(f"\nRunning simulation: {market_name} where b={b}, front_run_mult={front_run_mult}, min_vic_size_usd={min_vic_size}")
+                    results_df, trades_df = run_simulation(
+                        csv_path = csv_path,
+                        b = b,
+                        front_run_multiplier = front_run_mult,
+                        min_victim_size_usd  = min_vic_size,
+                    )
+        
+                    print_summary(results_df, m["name"])
+                    plot_results(results_df, m["name"], output_dir)
+
+                    results_df["market"] = m["name"]
+                    results_df["b"] = b
+                    results_df["front_run_multiplier"] = front_run_mult
+                    results_df["min_victim_size_usd"] = min_vic_size
+
+                    all_results.append(results_df)
+
+    combined = pd.concat(all_results, ignore_index=True)
+    combined["price_impact"] = (combined["price_after_frontrun"] - combined["price_before"])
+    combined_path = output_dir / "experiments_results.csv"
+    combined.to_csv(combined_path, index=False)
+
+    summary = (
+        combined
+        .groupby(["market", "b", "front_run_multiplier", "min_victim_size_usd"])
+        .agg(
+            attacks_simulated = ("attacker_profit", "count"),
+            profitable_attacks = ("attacker_profit", lambda x: (x > 0).sum()),
+            avg_attacker_profit = ("attacker_profit", "mean"),
+            total_attacker_profit = ("attacker_profit", "sum"),
+            max_attacker_profit = ("attacker_profit", "max"),
+            avg_shares_lost = ("shares_lost", "mean"),
+            total_shares_lost = ("shares_lost", "sum"),
+            avg_expected_value_lost = ("expected_value_lost", "mean"),
+            total_expected_value_lost = ("expected_value_lost", "sum"),
+            avg_price_impact = ("price_impact", "mean"),
+            max_price_impact = ("price_impact", "max"),
+        )
+        .reset_index()
+    )
+
+    summary_path = output_dir / "experiments_summary.csv"
+    summary.to_csv(summary_path, index=False)
+
+    print(f" Experiments complete. All results saved to: {combined_path}. Summary results saved to: {summary_path}")
+
+    return combined, summary
+
+# Plotting Experiments Insights with Summary Results
+def plot_experiments(summary_df: pd.DataFrame, output_dir: Path):
+    
+    fig, axes = plt.subplots(2, 2, figsize=(13,9))
+    fig.suptitle("Experiment Results", fontsize=14)
+
+    # first plot: liquidity b vs avg attacker profit
+
+    ax = axes[0,0]
+    b_summary = (
+        summary_df
+        .groupby("b")["avg_attacker_profit"]
+        .mean()
+        .reset_index()
+    )
+        
+    ax.plot(b_summary["b"], b_summary["avg_attacker_profit"], marker="o", color="steelblue", lw=2)
+    ax.set_title("Liquidity Parameter vs Attacker Profit")
+    ax.set_xlabel("Liquidity Parameter b")
+    ax.set_ylabel("Average Attacker Profit (USDC)")
+
+    # second plot: front run multiplier vs avg attacker profit
+
+    ax = axes[0,1]
+    front_summary = (
+        summary_df
+        .groupby("front_run_multiplier")["avg_attacker_profit"]
+        .mean()
+        .reset_index()
+    )
+        
+    ax.plot(front_summary["front_run_multiplier"], front_summary["avg_attacker_profit"], marker="o", color="firebrick", lw=2)
+    ax.set_title("Attacker Size vs Attacker Profit")
+    ax.set_xlabel("Front-Run Multiplier")
+    ax.set_ylabel("Average Attacker Profit (USDC)")
+
+    # third plot: victim threshold vs avg expected value lost
+
+    ax = axes[1, 0]
+    victim_summary = (
+        summary_df
+        .groupby("min_victim_size_usd")["avg_expected_value_lost"]
+        .mean()
+        .reset_index()
+    )
+        
+    ax.plot(victim_summary["min_victim_size_usd"], victim_summary["avg_expected_value_lost"], marker="o", color="darkorange", lw=2)
+    ax.set_title("Victim Trade Threshold vs Expected Value Lost")
+    ax.set_xlabel("Minimum Victim Trade Size (USDC)")
+    ax.set_ylabel("Average Expected Value Lost")
+
+    # fourth plot: liquidity parameter vs price impact
+
+    ax = axes[1, 1]
+    impact_summary = (
+        summary_df
+        .groupby("b")["avg_price_impact"]
+        .mean()
+        .reset_index()
+    )
+        
+    ax.plot(impact_summary["b"], impact_summary["avg_price_impact"], marker="o", color="purple", lw=2)
+    ax.set_title("Liquidity Parameter vs Price Impact")
+    ax.set_xlabel("Liquidity Parameer b")
+    ax.set_ylabel("Average Price Impact")
+
+    plt.tight_layout()
+    out_path = output_dir / "experiments_plots.png"
+    plt.savefig(out_path, dpi=150)
+    plt.close()
+
+    print(f"Saved experiments plots to {out_path}")
+
 
 if __name__ == "__main__":
 
@@ -311,3 +460,6 @@ if __name__ == "__main__":
     combined = pd.concat(all_results, ignore_index=True)
     combined.to_csv(output_dir / "all_markets_results.csv", index=False)
     print("\nCombined results saved.")
+
+    experiment_combined, experiment_summary = run_experiments(markets)
+    plot_experiments(summary_df=experiment_summary, output_dir=output_dir)
