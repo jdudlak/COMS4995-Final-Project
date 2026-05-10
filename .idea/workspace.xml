@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="c5a3d0aa-d185-4ab0-bbbe-66c6eabcd5c7" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lmsr_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/lmsr_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/sandwich_simulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/sandwich_simulation.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,7 +124,8 @@
       <workItem from="1777387039555" duration="742000" />
       <workItem from="1777412448420" duration="1077000" />
       <workItem from="1777850476409" duration="1461000" />
-      <workItem from="1778253549902" duration="2697000" />
+      <workItem from="1778253549902" duration="4965000" />
+      <workItem from="1778436671133" duration="2381000" />
     </task>
     <servers />
   </component>
@@ -132,7 +133,7 @@
     <option name="version" value="3" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/COMS4995_Project$sandwich_simulation.coverage" NAME="sandwich_simulation Coverage Results" MODIFIED="1778256028803" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/COMS4995_Project$sandwich_simulation.coverage" NAME="sandwich_simulation Coverage Results" MODIFIED="1778439532436" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/COMS4995_Project$polymarket_data.coverage" NAME="polymarket_data Coverage Results" MODIFIED="1778253873109" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
