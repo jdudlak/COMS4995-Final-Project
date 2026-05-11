@@ -1,11 +1,12 @@
 # Sandwich Attack Simulation on LMSR-based Blockchain Prediction Markets
+# Julia Dudlak (jed2206), Trisha Taparia (tdt2128), Yichen Liu (yl6195)
 
 This project simulates sandwich attacks in LMSR-based blockchain prediction markets using trade data from Polymarket. The simulation is used to evaluate attacker profitability, victim harm, and price impact under different market conditions.
 
 The project includes:
-- Polymarket trade extraction via Polymarket API,
-- an LMSR automated market maker implementation,
-- baseline sandwich attack simulation,
+- Polymarket trade extraction via Polymarket API
+- an LMSR automated market maker implementation
+- baseline sandwich attack simulation
 - experiments on liquidity parameter b, attacker front-run multiplier, and minimum victim trade size
 - visualizations of attack outcomes
 
