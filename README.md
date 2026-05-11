@@ -1,5 +1,4 @@
-# Sandwich Attack Simulation on LMSR-based Blockchain Prediction Markets
-# Julia Dudlak (jed2206), Trisha Taparia (tdt2128), Yichen Liu (yl6195)
+# Sandwich Attack Simulation on LMSR-based Blockchain Prediction Markets - Julia Dudlak (jed2206), Trisha Taparia (tdt2128), Yichen Liu (yl6195)
 
 This project simulates sandwich attacks in LMSR-based blockchain prediction markets using trade data from Polymarket. The simulation is used to evaluate attacker profitability, victim harm, and price impact under different market conditions.
 
